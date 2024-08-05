@@ -10,15 +10,6 @@ public class PlayerInputs : MonoBehaviour
     private InputAction[] _gameplayActions;
     
     public InputAction[] GameplayActions => _gameplayActions;
-    private void OnEnable() 
-    {
-        _playerInput = GetComponent<PlayerInput>();
-        _inputActionAsset = _playerInput.actions;
-
-        _actionMaps = _inputActionAsset.actionMaps.ToArray();
-
-        _gameplayActions = _actionMaps[1].ToArray();
-    }
 
     public void EnableUI()
     {
@@ -28,6 +19,13 @@ public class PlayerInputs : MonoBehaviour
 
     public void EnableGameplay()
     {
+        _playerInput = GetComponent<PlayerInput>();
+        _inputActionAsset = _playerInput.actions;
+
+        _actionMaps = _inputActionAsset.actionMaps.ToArray();
+
+        _gameplayActions = _actionMaps[1].ToArray();
+
         foreach (InputAction action in _gameplayActions)
         {
             action.Enable();

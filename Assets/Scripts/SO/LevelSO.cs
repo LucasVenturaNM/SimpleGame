@@ -15,15 +15,16 @@ public class LevelSO : ScriptableObject
     [SerializeField] private float _marginBetweenCells;
 
     [Header("Round Settings")]
-    [SerializeField] private float _initialWaitingTime = 1;
-    [SerializeField] private float _initialAnticipationTime = 2;
-    [SerializeField] private float _initialRoundTime = 1;
+    [SerializeField] private List<LevelInformation> _roundInformation = new List<LevelInformation>();
+    // [SerializeField] private float _initialWaitingTime = 1;
+    // [SerializeField] private float _initialAnticipationTime = 2;
+    // [SerializeField] private float _initialRoundTime = 1;
 
-    [Header("Progress Settings")]
-    [SerializeField] private float _roundSpeedIncrease = 0.25f;
-    [SerializeField] private float _roundMaxSpeedMultiplier = 1;
-    [SerializeField] private int _numberOfRounds = 5;
-    [SerializeField] private float _minRoundStateDuration = 0.25f;
+    // [Header("Progress Settings")]
+    // [SerializeField] private float _roundSpeedIncrease = 0.25f;
+    // [SerializeField] private float _roundMaxSpeedMultiplier = 1;
+    // [SerializeField] private int _numberOfRounds = 5;
+    // [SerializeField] private float _minRoundStateDuration = 0.25f;
 
     //Getters
     //Level Identification
@@ -36,15 +37,17 @@ public class LevelSO : ScriptableObject
     public float MarginBetweenCells => _marginBetweenCells;
 
     //Round Settings
-    public float InitialWaitingTime => _initialWaitingTime;
-    public float InitialAnticipationTime => _initialAnticipationTime;
-    public float InitialRoundTime => _initialRoundTime;
+    public List<LevelInformation> RoundInformation => _roundInformation;
 
-    //Progress Settings
-    public float RoundSpeedIncrease => _roundSpeedIncrease;
-    public float RoundMaxSpeedMultiplier => _roundMaxSpeedMultiplier;
-    public int NumberOfRounds => _numberOfRounds;
-    public float MinRoundStateDuration => _minRoundStateDuration;
+    // public float InitialWaitingTime => _initialWaitingTime;
+    // public float InitialAnticipationTime => _initialAnticipationTime;
+    // public float InitialRoundTime => _initialRoundTime;
+
+    // //Progress Settings
+    // public float RoundSpeedIncrease => _roundSpeedIncrease;
+    // public float RoundMaxSpeedMultiplier => _roundMaxSpeedMultiplier;
+    // public int NumberOfRounds => _numberOfRounds;
+    // public float MinRoundStateDuration => _minRoundStateDuration;
 
 
 

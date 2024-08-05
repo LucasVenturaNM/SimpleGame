@@ -7,19 +7,31 @@ namespace SimpleGame.Playground
     public class PlaygroundGenerator : MonoBehaviour
     {
         [SerializeField] private GameObject _groundBlock;
-        [SerializeField] private LevelSO _levelData;
+        private LevelSO _levelData;
 
         [Header("Playground Size")]
 
         private List<GameObject> _groundBlocks = new List<GameObject>();
 
         public List<GameObject> GroundBlocks => _groundBlocks;
-        public LevelSO GetLevelData => _levelData;
-        private void Awake()
+        private void OnEnable() 
         {
+            LevelManager.onLevelStateChanged += UpdatePlayground;
+        }
+
+        private void Start()
+        {
+            _levelData = LevelManager.Instance.CurrentLevelData;
             CenterPlayground();
             CreatePlayground();
         }
+
+        private void OnDisable()
+        {
+            LevelManager.onLevelStateChanged -= UpdatePlayground;
+        }
+
+        
 
         private void CenterPlayground()
         {
@@ -45,16 +57,18 @@ namespace SimpleGame.Playground
             }
         }
 
-        public void UpdatePlayground()
+        public void UpdatePlayground(LevelState state)
         {
-            foreach (GameObject groundBlock in _groundBlocks)
-            {
-                Destroy(groundBlock);
-            }
+            // if(state == LevelState.VictoryScreen)
+            // foreach (GameObject groundBlock in _groundBlocks)
+            // {
+            //     Destroy(groundBlock);
+            // }
 
-            _groundBlocks.Clear();
+            // _groundBlocks.Clear();
 
-            CreatePlayground();
+            // CenterPlayground();
+            // CreatePlayground();
         }
     }
 }

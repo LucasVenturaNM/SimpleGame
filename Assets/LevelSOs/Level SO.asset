@@ -17,10 +17,8 @@ MonoBehaviour:
   _initialNumberOfRows: 5
   _initialNumberOfColumns: 3
   _marginBetweenCells: 1.5
-  _initialWaitingTime: 1
-  _initialAnticipationTime: 5
-  _initialRoundTime: 1.5
-  _roundSpeedIncrease: 0.25
-  _roundMaxSpeedMultiplier: 1
-  _numberOfRounds: 6
-  _minRoundStateDuration: 0.25
+  _roundInformation:
+  - _breathingDuration: 2
+    _anticipationDuration: 0.5
+    _winConditionDuration: 5
+    _safeBlockAmount: 5
