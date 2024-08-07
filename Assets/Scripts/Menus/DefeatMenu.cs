@@ -29,14 +29,6 @@ public class DefeatMenu : MonoBehaviour
 
             _defeatOverlay.SetActive(true);
         }
-        if(state == LevelState.Reset)
-        {
-            StopAllCoroutines();
-
-            _transitionCoroutine = StartCoroutine(HorizontalTransitionOut(_outOfScreen));
-
-            _defeatOverlay.SetActive(false);
-        }
     }
 
     private IEnumerator HorizontalTransitionIn(Vector3 newPosition)
@@ -48,7 +40,6 @@ public class DefeatMenu : MonoBehaviour
         {
             transitionScreenRect.position += Vector3.left * _transitionSpeed * Time.deltaTime;
 
-            Debug.Log(transitionScreenRect.position);
 
             yield return null;
         }
@@ -64,14 +55,12 @@ public class DefeatMenu : MonoBehaviour
         {   
             transitionScreenRect.position += Vector3.right * _transitionSpeed * Time.deltaTime;
 
-            Debug.Log(transitionScreenRect.position);
 
             yield return null;
         }
 
         transitionScreenRect.position = newPosition;
         _transitionScreen.SetActive(false);
-        Debug.Log(transitionScreenRect.position);
 
 
     }

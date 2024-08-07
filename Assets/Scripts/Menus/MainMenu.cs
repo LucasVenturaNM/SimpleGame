@@ -15,17 +15,6 @@ public class MainMenu : MonoBehaviour
         GameManager.onGameStateChanged -= Pause;
     }
 
-    public void LoadSceneByIndex(int buildIndex)
-    {
-        if(SceneManager.GetSceneByBuildIndex(buildIndex) == null)
-        {   
-            Debug.LogError("Build index " + buildIndex + " is NOT valid!");
-            return;
-        }
-
-        SceneManager.LoadScene(buildIndex);
-    }
-
     public void Pause(GameState state)
     {
         if(state == GameState.Paused)
@@ -36,6 +25,11 @@ public class MainMenu : MonoBehaviour
         {
             Time.timeScale = 1;
         }
+    }
+
+    public void LoadNewScene(int sceneIndex)
+    {
+        GameManager.Instance.LoadLevel(sceneIndex);
     }
 
     public void QuitGame()

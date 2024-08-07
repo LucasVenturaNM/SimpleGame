@@ -18,7 +18,11 @@ MonoBehaviour:
   _initialNumberOfColumns: 3
   _marginBetweenCells: 1.5
   _roundInformation:
+  - _breathingDuration: 3
+    _anticipationDuration: 3
+    _winConditionDuration: 3
+    _safeBlockAmount: 5
   - _breathingDuration: 2
-    _anticipationDuration: 0.5
-    _winConditionDuration: 5
+    _anticipationDuration: 3
+    _winConditionDuration: 3
     _safeBlockAmount: 5

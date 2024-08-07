@@ -10,7 +10,7 @@ public class LevelManager : MonoBehaviour
     public static LevelManager Instance { get; private set;}
     private Coroutine reactionCoroutine;
     private GameState _currentGameState;
-    [SerializeField] private PlaygroundGenerator _playgroundGenerator;
+    private PlaygroundGenerator _playgroundGenerator;
     [SerializeField] private LevelsList _levelsList;
     private int _currentLevelIndex;
     private LevelSO _currentLevelData;
@@ -22,14 +22,13 @@ public class LevelManager : MonoBehaviour
     private List<int> _safeBlocksList = new List<int>();
 
     private int _currentRound;
-    private LevelState _currentLevelState;
     public static event Action<LevelState> onLevelStateChanged;
 
     private event Action<LevelState> onInternalLevelStateChanged;
 
+
     //Getter
     public LevelSO CurrentLevelData => _currentLevelData;
-    public PlaygroundGenerator PlaygroundGenerator => _playgroundGenerator;
 
     #region Unity
     private void OnEnable()
@@ -46,19 +45,13 @@ public class LevelManager : MonoBehaviour
         }
         else if(Instance != this)
         {
-            Destroy(this);
-        }
-        
-        _currentLevelIndex = 0;
-
-        _currentLevelData = _levelsList.LevelList[_currentLevelIndex];
-
-        _currentRound = 0;
+            Destroy(gameObject);
+        }    
     }
 
     private void Start()
     {
-        UpdateLevelState(LevelState.Start);
+        LevelStart();
     }
 
     private void OnDisable()
@@ -70,40 +63,67 @@ public class LevelManager : MonoBehaviour
     }
     #endregion
     
+    private void LevelStart()
+    {
+        _currentLevelIndex = 0;
+
+        _currentLevelData = _levelsList.LevelList[_currentLevelIndex];
+
+        _currentRound = 0;
+
+        _playgroundGenerator = GetComponent<PlaygroundGenerator>();
+
+        UpdateLevelState(LevelState.Start);
+    }
+
     private void CurrentGameState(GameState state)
     {
+        Debug.Log("Current Game State got updated to: " + state);
         _currentGameState = state;
     }
 
     public void UpdateLevelState(LevelState state)
-    {
-        if(_currentGameState == GameState.Paused) return;
-
-        _currentLevelState = state;
+    {   
+        Debug.Log("GameState is: " + _currentGameState);
 
         StopAllCoroutines();
 
+        if(state == LevelState.NextLevel)
+        {
+            _currentLevelIndex ++;
+            _currentRound = 0;
+
+            if (_currentLevelIndex < _levelsList.LevelList.Count)
+                {
+                    _currentLevelData = _levelsList.LevelList[_currentLevelIndex];
+                }
+                else
+                {
+                    GameManager.Instance.LoadLevel(0);
+                }
+
+            StartCoroutine(TimerUtil.LevelStateCallDelayer(1f, onInternalLevelStateChanged, LevelState.Start));
+        }
+
+
+        //if(_currentGameState == GameState.Paused) return;
+
+
         switch (state)
         {
-            case LevelState.VictoryScreen:
+            case LevelState.Start:
 
-                break;
+                GetRoundInfo();
 
+                StartCoroutine(TimerUtil.LevelStateCallDelayer(_breathingTime, onInternalLevelStateChanged, LevelState.Anticipating));
 
-            case LevelState.DefeatScreen:
-
-                //StartCoroutine(Timing.LevelStateCallDelayer(3f,onInternalLevelStateChanged, LevelState.Reset));
-
-                _currentRound = 0;
-                
                 break;
 
 
             case LevelState.Anticipating:
 
-                StartCoroutine(Timing.LevelStateCallDelayer(_anticipationTime,onInternalLevelStateChanged, LevelState.WinCondition));
-                GetRoundInfo();
-
+                StartCoroutine(TimerUtil.LevelStateCallDelayer(_anticipationTime,onInternalLevelStateChanged, LevelState.WinCondition));
+                
                 GetSafeBlock();
 
                 reactionCoroutine = StartCoroutine(Anticipation());
@@ -113,12 +133,26 @@ public class LevelManager : MonoBehaviour
 
             case LevelState.WinCondition:
 
-                StartCoroutine(Timing.LevelStateCallDelayer(_winConditionTime,onInternalLevelStateChanged, LevelState.Reset));
-
                 StopCoroutine(reactionCoroutine);
 
                 NewRound();
 
+                break;
+
+
+            case LevelState.SuccessfulRound:
+               
+                StartCoroutine(TimerUtil.LevelStateCallDelayer(3f,onInternalLevelStateChanged, LevelState.Reset));
+
+                break;
+
+
+             case LevelState.DefeatScreen:
+
+                _currentLevelIndex = 0;
+                _currentRound = 0;
+                _currentLevelData = _levelsList.LevelList[_currentLevelIndex];
+                
                 break;
 
 
@@ -131,12 +165,12 @@ public class LevelManager : MonoBehaviour
                     if (_currentRound + 1 < _currentLevelData.RoundInformation.Count)
                     {
                         _currentRound += 1;
-                        StartCoroutine(Timing.LevelStateCallDelayer(_breathingTime, onInternalLevelStateChanged, LevelState.Anticipating));
+                        StartCoroutine(TimerUtil.LevelStateCallDelayer(_breathingTime, onInternalLevelStateChanged, LevelState.Anticipating));
 
                     }
                     else
                     {
-                        Victory();
+                        UpdateLevelState(LevelState.VictoryScreen);
                         return;
                     }
                 }
@@ -144,36 +178,19 @@ public class LevelManager : MonoBehaviour
                 break;
 
 
-            case LevelState.SuccessfulRound:
-               
-                StartCoroutine(Timing.LevelStateCallDelayer(3f,onInternalLevelStateChanged, LevelState.Reset));
-
-                break;
-
-
-            case LevelState.Start:
-                GetRoundInfo();
-
-                StartCoroutine(Timing.LevelStateCallDelayer(_breathingTime, onInternalLevelStateChanged, LevelState.Anticipating));
-                
-                break;
-
-
-            case LevelState.NextLevel:
-
-                _currentLevelData = _levelsList.LevelList[_currentLevelIndex ++];
-
-                _currentRound = 0;
+            case LevelState.VictoryScreen:
 
                 break;
 
         }
+
 
         onLevelStateChanged?.Invoke(state);
     }
 
     private void GetSafeBlock()
     {
+        if(_playgroundGenerator == null) return; 
         int safeBlockIndex = UnityEngine.Random.Range(0, _playgroundGenerator.GroundBlocks.Count - 1);
 
         if (_safeBlocksList.Contains(safeBlockIndex))
@@ -188,7 +205,19 @@ public class LevelManager : MonoBehaviour
 
         if (_currentLevelData.RoundInformation.Count != 0)
         {
-            if (_safeBlocksList.Count < _currentLevelData.RoundInformation[_currentRound].SafeBlockAmount)
+            int totalSafeBlockAmount;
+            int totalNumberOfBlocks = _currentLevelData.InitialNumberOfRows* _currentLevelData.InitialNumberOfColumns;
+            
+            if(_currentLevelData.RoundInformation[_currentRound].SafeBlockAmount >= totalNumberOfBlocks)
+            {
+                totalSafeBlockAmount = totalNumberOfBlocks -1;
+            }
+            else
+            {
+                totalSafeBlockAmount = _currentLevelData.RoundInformation[_currentRound].SafeBlockAmount;
+            }
+
+            if (_safeBlocksList.Count < totalSafeBlockAmount)
             {
                 GetSafeBlock();
             }
@@ -273,29 +302,6 @@ public class LevelManager : MonoBehaviour
         }
 
     }
-
-    private void Victory()
-    {
-        UpdateLevelState(LevelState.VictoryScreen);
-        Debug.Log("Victory Screen Showing!");
-        //Display a feedback message
-        //Move to the next level data SO
-        //rebuild the playground grid, it would be fun to have some cool animation
-        //Start the round stage logic all over again
-    }
-
-    private void Defeat()
-    {
-        UpdateLevelState(LevelState.DefeatScreen);
-        Debug.Log ("Defeat Screen Showing!");
-        //Display a feedback message and menu
-    }
-
-    public void NextLevel()
-    {
-
-    }
-    
 }
 
 public enum LevelState

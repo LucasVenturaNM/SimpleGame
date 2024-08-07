@@ -6,7 +6,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private float _lossDuration = 3f;
     private PlaygroundGenerator _playgroundGenerator;
     private LevelSO _levelData;
     private int _currentBlock;
@@ -29,15 +28,12 @@ public class PlayerController : MonoBehaviour
         GameManager.onGameStateChanged += HandleGameStates;
         LevelManager.onLevelStateChanged += HandleLevelStates;
     }
+
     private void Start()
     {
-        if(LevelManager.Instance != null)
-        {
-            _playgroundGenerator = LevelManager.Instance.PlaygroundGenerator;
-            _levelData = LevelManager.Instance.CurrentLevelData;
-        }
+        _levelData = LevelManager.Instance.CurrentLevelData;
 
-        RepositionAndSetSpawnPoint();   
+        _playgroundGenerator = GetComponentInParent<PlaygroundGenerator>();
     }
 
     private void Update() {
@@ -47,9 +43,11 @@ public class PlayerController : MonoBehaviour
     private void OnDisable() 
     {
         GameManager.onGameStateChanged -= HandleGameStates;
+        LevelManager.onLevelStateChanged -= HandleLevelStates;
+
         _playerInputs.GameplayActions[0].performed -= Move;
         _playerInputs.GameplayActions[1].performed -= Pause;
-        _playerInputs.DisableGameplay();
+        _playerInputs.DisableEverything();
 
     }
     #endregion
@@ -71,48 +69,54 @@ public class PlayerController : MonoBehaviour
 
     private void HandleLevelStates(LevelState state)
     {
-        switch(state)
+        switch (state)
         {
+            case LevelState.Start:
+
+                _levelData = LevelManager.Instance.CurrentLevelData;
+
+                _playgroundGenerator = GetComponentInParent<PlaygroundGenerator>();
+
+                _playerInputs = GetComponent<PlayerInputs>();
+                _playerInputs.EnableGameplay();
+
+                ReadGameInput();
+
+                break;
+
+
             case LevelState.WinCondition:
 
-            StopReadingGameInput();
+                StopReadingGameInput();
 
-            CheckWinCondition();
+                CheckWinCondition();
 
-            break;
+                break;
 
 
             case LevelState.Reset:
 
-            ReadGameInput();
+                ReadGameInput();
 
-            if(_previousLevelState == LevelState.VictoryScreen)
-            {
-                RepositionAndSetSpawnPoint();
-            }
-            else if (_previousLevelState == LevelState.DefeatScreen)
-            {
-                RespawnPlayer();
-            }
-
-            break;
+                break;
 
 
             case LevelState.VictoryScreen:
 
-            StopReadingGameInput();
+                StopReadingGameInput();
 
-            _levelData = LevelManager.Instance.CurrentLevelData;
+                _playerInputs.GameplayActions[1].performed -= Pause;
 
-            break;
+                break;
 
 
             case LevelState.DefeatScreen:
 
-            StopReadingGameInput();
+                StopReadingGameInput();
 
-            break;
+                _playerInputs.GameplayActions[1].performed -= Pause;
 
+                break;
 
         }
 
@@ -134,7 +138,7 @@ public class PlayerController : MonoBehaviour
     private void Move(InputAction.CallbackContext ctx)
     {
         Vector2 inputVector = ctx.ReadValue<Vector2>();
-
+        
         int nextBlock = GetComponent<PlayerMovement>().CheckForMovement(inputVector, _playgroundGenerator, _levelData);
         if(nextBlock >= 0 && nextBlock < _playgroundGenerator.GroundBlocks.Count)
         {
@@ -164,25 +168,7 @@ public class PlayerController : MonoBehaviour
         {
             LevelManager.Instance.UpdateLevelState(LevelState.SuccessfulRound);
         }
-
-        StopReadingGameInput();
-
     }
 
-    private void RespawnPlayer()
-    {
-        transform.position = _initialPosition;
-    }
-
-    private void RepositionAndSetSpawnPoint()
-    {
-        if(_levelData.InitialNumberOfRows % 2 == 0 || _levelData.InitialNumberOfColumns % 2 == 0)
-        {
-            _initialPosition = new Vector3(_playgroundGenerator.GroundBlocks[0].transform.position.x,
-                                            transform.position.y,
-                                            _playgroundGenerator.GroundBlocks[0].transform.position.z);
-
-            transform.position = _initialPosition;
-        }
-    }
+    
 }

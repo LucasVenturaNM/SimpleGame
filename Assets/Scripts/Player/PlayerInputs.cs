@@ -35,7 +35,7 @@ public class PlayerInputs : MonoBehaviour
         _actionMaps[1].Enable();
     }
 
-    public void DisableGameplay()
+    public void DisableEverything()
     {
         foreach (InputAction action in _gameplayActions)
         {

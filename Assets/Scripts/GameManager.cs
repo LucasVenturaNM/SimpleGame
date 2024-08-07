@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
@@ -20,15 +21,16 @@ public class GameManager : MonoBehaviour
         }
         else if(Instance != this)
         {
-            Destroy(this);
+            Destroy(gameObject);
         }
 
         DontDestroyOnLoad(this);
     }
 
-    public void Start()
+    private void Start()
     {
         UpdateGameState(GameState.Playing);
+
     }
 
     public void UpdateGameState(GameState newState)
@@ -47,6 +49,7 @@ public class GameManager : MonoBehaviour
 
         _currentState = newState;
         onGameStateChanged?.Invoke(newState);
+        Debug.Log("Current Game State is: " + newState);
     }
 
     public void ChangePauseState()
@@ -59,6 +62,7 @@ public class GameManager : MonoBehaviour
         {
             UpdateGameState(GameState.Paused);
         }
+        
     }
 
     private void PauseGame()
@@ -69,6 +73,20 @@ public class GameManager : MonoBehaviour
     private void ResumeGame()
     {
         Time.timeScale = 1;
+    }
+
+    public void LoadLevel(int buildIndex)
+    {
+       
+        if(SceneManager.GetSceneByBuildIndex(buildIndex) == null)
+        {   
+            Debug.LogError("Build index " + buildIndex + " is NOT valid!");
+            return;
+        }
+
+        UpdateGameState(GameState.Playing);
+        SceneManager.LoadScene(buildIndex);
+    
     }
     
 }

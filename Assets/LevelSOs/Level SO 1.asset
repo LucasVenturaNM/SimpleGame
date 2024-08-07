@@ -13,14 +13,16 @@ MonoBehaviour:
   m_Name: Level SO 1
   m_EditorClassIdentifier: 
   _levelName: SampleLevel
-  _levelIndex: -1
-  _initialNumberOfRows: 2
-  _initialNumberOfColumns: 2
-  _marginBetweenCells: 0
-  _initialWaitingTime: 1
-  _initialAnticipationTime: 2
-  _initialRoundTime: 1
-  _roundSpeedIncrease: 0.25
-  _roundMaxSpeedMultiplier: 1
-  _numberOfRounds: 5
-  _minRoundStateDuration: 0.25
+  _levelIndex: 2
+  _initialNumberOfRows: 4
+  _initialNumberOfColumns: 3
+  _marginBetweenCells: 1
+  _roundInformation:
+  - _breathingDuration: 2
+    _anticipationDuration: 2
+    _winConditionDuration: 2
+    _safeBlockAmount: 3
+  - _breathingDuration: 2
+    _anticipationDuration: 2
+    _winConditionDuration: 2
+    _safeBlockAmount: 2

@@ -7,6 +7,11 @@ namespace SimpleGame.Playground
     public class PlaygroundGenerator : MonoBehaviour
     {
         [SerializeField] private GameObject _groundBlock;
+        [SerializeField] private GameObject _player;
+        private GameObject _playerInstance;
+        
+
+        private Vector3 _playerPosition;
         private LevelSO _levelData;
 
         [Header("Playground Size")]
@@ -19,19 +24,45 @@ namespace SimpleGame.Playground
             LevelManager.onLevelStateChanged += UpdatePlayground;
         }
 
-        private void Start()
-        {
-            _levelData = LevelManager.Instance.CurrentLevelData;
-            CenterPlayground();
-            CreatePlayground();
-        }
-
         private void OnDisable()
         {
             LevelManager.onLevelStateChanged -= UpdatePlayground;
         }
 
         
+
+        public void UpdatePlayground(LevelState state)
+        {
+            switch (state)
+            {
+                case LevelState.Start:
+
+                    _levelData = LevelManager.Instance.CurrentLevelData;
+
+                    CenterPlayground();
+
+                    CreatePlayground();
+
+                    SpawnPlayer();
+
+                    break;
+
+
+                case LevelState.NextLevel:
+
+                    foreach (GameObject groundBlock in _groundBlocks)
+                    {
+                        Destroy(groundBlock);
+                    }
+
+                    if(_playerInstance != null) Destroy(_playerInstance);
+
+                    _groundBlocks.Clear();
+
+                    break;
+
+            }
+        }
 
         private void CenterPlayground()
         {
@@ -57,18 +88,21 @@ namespace SimpleGame.Playground
             }
         }
 
-        public void UpdatePlayground(LevelState state)
+        private void SpawnPlayer()
         {
-            // if(state == LevelState.VictoryScreen)
-            // foreach (GameObject groundBlock in _groundBlocks)
-            // {
-            //     Destroy(groundBlock);
-            // }
+            if(_playerInstance == null) _playerInstance = Instantiate(_player, transform);
 
-            // _groundBlocks.Clear();
+            if (_levelData.InitialNumberOfRows % 2 == 0 || _levelData.InitialNumberOfColumns % 2 == 0)
+            {
+                _playerPosition = new Vector3(_groundBlocks[0].transform.position.x,
+                                                transform.position.y,
+                                                _groundBlocks[0].transform.position.z);
+            }
+            
+            _playerInstance.transform.position = _playerPosition;
 
-            // CenterPlayground();
-            // CreatePlayground();
+            
         }
+
     }
 }

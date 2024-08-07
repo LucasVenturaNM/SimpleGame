@@ -7,9 +7,9 @@ using UnityEngine;
 public struct LevelInformation
 {
     private string _name;
-    [SerializeField] [Range(0.5f,Mathf.Infinity)] private float _breathingDuration;
-    [SerializeField] [Range(0.5f,Mathf.Infinity)]private float _anticipationDuration;
-    [SerializeField] [Range(0.8f,5)]private float _winConditionDuration;
+    [SerializeField] [Range(0.5f,10)] private float _breathingDuration;
+    [SerializeField] [Range(0.5f,10)]private float _anticipationDuration;
+    [SerializeField] [Range(0.8f,10)]private float _winConditionDuration;
     [SerializeField] [Range(1,10)] private int _safeBlockAmount;
 
     public string Name {set { _name = value; } }

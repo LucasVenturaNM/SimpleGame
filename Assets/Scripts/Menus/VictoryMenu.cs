@@ -48,8 +48,6 @@ public class VictoryMenu : MonoBehaviour
         {
             transitionScreenRect.position += Vector3.left * _transitionSpeed * Time.deltaTime;
 
-            Debug.Log(transitionScreenRect.position);
-
             yield return null;
         }
 
@@ -64,15 +62,16 @@ public class VictoryMenu : MonoBehaviour
         {   
             transitionScreenRect.position += Vector3.right * _transitionSpeed * Time.deltaTime;
 
-            Debug.Log(transitionScreenRect.position);
-
             yield return null;
         }
 
         transitionScreenRect.position = newPosition;
         _transitionScreen.SetActive(false);
-        Debug.Log(transitionScreenRect.position);
 
+    }
 
+    public void ContinueButton()
+    {
+        LevelManager.Instance.UpdateLevelState(LevelState.NextLevel);
     }
 }
